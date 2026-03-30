@@ -1,0 +1,156 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div id="content">
+        <div id="central-content">
+            <h1>Better Numbers Game</h1>
+            <div id="target-box">
+                <button class="target-number-box">-</button>
+                <button class="target-number-box">-</button>
+                <button class="target-number-box">-</button>
+                <button class="node-creation" onclick="GenerateGrid()">Generate</button>
+                <button class="node-creation" onclick="CreateAnswer()">Create</button>
+            </div>
+            <div id="numbers-box">
+                <button class="number-box">-</button>
+                <button class="number-box">-</button>
+                <button class="number-box">-</button>
+                <button class="number-box">-</button>
+                <button class="number-box">-</button>
+                <button class="number-box">-</button>
+            </div>
+            <div id="node-selection-box">
+                <div class="horizontal-layout-group">
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                </div>
+                <div class="horizontal-layout-group">
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                </div>
+                <div class="horizontal-layout-group">
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                </div>
+                <div class="horizontal-layout-group">
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                    <button class="node-selection"></button>
+                </div>
+                
+            </div>
+            
+        </div>
+
+        </div>
+       
+        <script>
+            //global stuff
+            var useHarderLargeNumbers = false;
+            var useHarderSmallerNumbers = false;
+            var usePrimeSmallNumbers = false;
+            var numbersSelected = [];
+            GenerateGrid();
+            function GameMaster(){
+                
+            }
+            function CreateAnswer(){
+                var choices = ["+","+","-","-","*","*","/","/"]
+                var numbers = shuffle(numbersSelected);
+                choices = shuffle(choices);
+                var chain = 0;
+                for(let i=0; i<5;i++){
+                    let op = choices[i];
+                    let num = numbers[i];
+                    if(chain==0){
+                        chain = num;
+                    }
+                    else{
+                        if(op=="+"){
+                            chain+=num;
+                        }
+                        else if(op=="-"){
+                            chain-=num;
+                        }
+                        else if(op=="*"){
+                            chain*=num;
+                        }
+                        else if(op=="/"){
+                            chain/=num;
+                        }
+                    }
+
+
+                }
+                var docs = document.getElementsByClassName("target-number-box");
+                chain = chain+= "----"
+                docs[0].innerText = chain[0];
+                docs[1].innerText = chain[1];
+                docs[2].innerText = chain[2];
+                alert(chain);
+            }
+            function UpdateNumbersBox(){
+                var buttons = document.getElementsByClassName("number-box");
+                for(let i=0; i<numbersSelected.length;i++){
+                    buttons[i].innerText=numbersSelected[i];
+                }
+            }
+            function ClickNumber(i,object){
+                if(object.innerText!="Selected"){
+                    numbersSelected.push(i);
+                    UpdateNumbersBox();
+                    object.innerText="[0]";
+                    //alert("Selected number");
+                }
+                else{
+                    //alert("Invalid");
+                }
+            }
+            function shuffle(array){
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1))
+                    ;[array[i], array[j]] = [array[j], array[i]]
+                }
+                return array;
+            }
+            function GenerateNext(){
+                
+            }
+            function GenerateGrid(){
+                //Small Numbers
+
+                var buttons = document.getElementsByClassName("node-selection");
+                for(let i=0; i<buttons.length;i++){
+                    buttons[i].onclick = function(){ClickNumber(i,buttons[i])};
+                    buttons[i].innerText= "[-]";
+                }
+            }
+
+            
+        </script>
+    </body>
+    
+</html>

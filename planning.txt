@@ -1,0 +1,2 @@
+Uhh add ability for more difficulties, ie add x0 fron 0-9.
+

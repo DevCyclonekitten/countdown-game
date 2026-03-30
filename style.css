@@ -92,6 +92,7 @@ html, body {
     border-radius: 5px;
     background-color: rgb(189, 189, 189);
 }
-#difficulty-button{
+
+.nomargin{
     margin:0px;
 }

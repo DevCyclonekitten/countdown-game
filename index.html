@@ -100,7 +100,7 @@
             var storedWeight = 0;
             GameMaster();
             GenerateGrid();
-            setInterval(UpdateDisplayAnimation,25);
+            setInterval(UpdateDisplayAnimation,50);
             function UpdateDisplayAnimation(){
                 if(numbersSelected.length==6){
                     runningAnimation=true;
@@ -199,7 +199,6 @@
             }
             function SelectAnswer(){
                 if(numbersSelected.length<6) return;
-                //selectedNumber=true;
                 CreateAnswer();
             }
             function ComputeOperator(input, modifier, operator){
@@ -360,8 +359,9 @@
                 weight = clamp(weight,0,20);
                 return [stack,weight,solution];
             }
+
             function GenerateAnswers(){
-                var iterations = 50000;
+                var iterations = 5000;
                 var validSolutions = [];
 
                 for(let j=0;j<iterations;j++){
@@ -480,8 +480,8 @@
                     }
                 }
             }
-            function CreateAnswer(){
-                GenerateAnswers();
+            async function CreateAnswer(){
+                await GenerateAnswers();
                 return;
             }
             function UpdateNumbersBox(){

@@ -1,3 +1,6 @@
-# Countdown Game But Better\
+# Countdown Game But Better
 
-Based off https://happysoft.org.uk/countdown/numgame.php
+To play visit: https://devcyclonekitten.github.io/countdown-game/
+
+
+Based off: https://happysoft.org.uk/countdown/numgame.php

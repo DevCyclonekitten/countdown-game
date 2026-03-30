@@ -9,21 +9,28 @@
     </head>
     <body>
         <div id="content">
-        <div id="central-content">
-            <h1>Better Numbers Game</h1>
+        <div id="central-content" class="horizontal-layout-group">
+            <div class="horizontal-layout-group">
+                <h1>Better Numbers Game</h1>
+            </div>
+            <div class="horizontal-layout-group">
+                <h3 id="difficulty-button"></h3>
+            </div>
+            
             <div id="target-box">
                 <button class="target-number-box">-</button>
                 <button class="target-number-box">-</button>
                 <button class="target-number-box">-</button>
-                <button class="node-creation" onclick="SelectAnswer()">Stop</button>
+                <button class="node-creation fancy-vertical-button" onclick="SelectAnswer()">Stop</button>
+                
             </div>
             <div id="numbers-box">
-                <button class="number-box">-</button>
-                <button class="number-box">-</button>
-                <button class="number-box">-</button>
-                <button class="number-box">-</button>
-                <button class="number-box">-</button>
-                <button class="number-box">-</button>
+                <button class="number-box"></button>
+                <button class="number-box"></button>
+                <button class="number-box"></button>
+                <button class="number-box"></button>
+                <button class="number-box"></button>
+                <button class="number-box"></button>
             </div>
             <div id="node-selection-box">
                 <div class="horizontal-layout-group row-1">
@@ -61,6 +68,11 @@
                 </div>
                 
             </div>
+            <div class="horizontal-layout-group">
+                <button class="fancy-button" onclick="ShowAnswer()">Show Answer</button>
+                <button class="fancy-button" onclick="GameMaster()">Reset</button>
+            </div>
+
             
         </div>
 
@@ -78,6 +90,9 @@
             var runningAnimation=false;
             var selectedNumber = false;
             var loop=0;
+            var difficulty=10;
+            var storedAnswer = "";
+            var storedWeight = 0;
             GameMaster();
             GenerateGrid();
             setInterval(UpdateDisplayAnimation,25);
@@ -94,6 +109,28 @@
                 }
             }
             function GameMaster(){
+                // RESET AREA
+                var reset = [...document.getElementsByClassName("node-selection-activated")];
+                for(let i=0; i< reset.length;i++){
+                    reset[i].classList.remove("node-selection-activated");
+                    reset[i].classList.add("node-selection");
+                    reset[i].innerText="[-]";
+                }
+
+                var buttons = [...document.getElementsByClassName("number-box")];
+                for(let j=0; j< buttons.length;j++){
+                    buttons[j].innerText="";
+                }
+                runningAnimation=false;
+                selectedNumber=false;
+                numbersSelected=[];
+                var docs = document.getElementsByClassName("target-number-box");
+                docs[0].innerText="";
+                docs[1].innerText="";
+                docs[2].innerText="";
+
+
+                // GENERATION AREA
                 var largeNumbersOptions = [25,50,75,100];
                 var generalNumbersOptions = [1,2,3,4,5,6,7,8,9,10,1,2,3,4];
                 var higherNumbersOptions = [5,6,7,8,9,10];
@@ -103,14 +140,17 @@
                 if(difficulty>2){
                     largeNumbersOptions.push(15,35);
                     generalNumbersOptions.push(3,5,7,11);
+                    higherNumbersOptions.push(6,8,10,4);
                 }
                 if(difficulty>4){
-                    generalNumbersOptions.push(13,17,19,12,14,16);
+                    generalNumbersOptions.push(13,12,14,11);
                     largeNumbersOptions.push(85,65,40,95);
+                    higherNumbersOptions.push(13,14);
                 }
                 if(difficulty>6){
-                    generalNumbersOptions.push(3,5,7,13,17,19,12,14,16,11,15);
+                    generalNumbersOptions.push(3,5,7,13,12,11);
                     largeNumbersOptions.push(67,55,95,70);
+                    higherNumbersOptions.push(12);
                 }
 
                 largeNumbersPool = largeNumbersOptions;
@@ -157,78 +197,287 @@
                 selectedNumber=true;
                 CreateAnswer();
             }
-            function CreateAnswer(){
-                
-                var operations = ["+","+","-","-","*","*","/","/"];
-                operations = shuffle(operations);
-
-                var numbers = shuffle([...numbersSelected]);
-                
-                var choices = [];
-                var chain = 0;
-                var anschain = [];
-                var preinvalid = false;
-                for(let i=0; i<5;i++){
-                    let op = operations[i];
-                    let num = numbers[i];
-                    if(choices.length==0){
-                        choices.push(num);
-                        anschain.push("(0) "+num);
+            function ComputeOperator(input, modifier, operator){
+                var output = 0;
+                var illegal = false;
+                if(operator=="n"){
+                    return [[input,modifier],illegal];
+                }
+                else if(operator=="+"){
+                    output = input+modifier;
+                }
+                else if(operator=="-"){
+                    if(input>=modifier){
+                        output = input-modifier;  
                     }
                     else{
-                        let ch = randomElement(choices);
-                        choices = ch[1];
-                        let base = ch[0];
-                        
-                        if(op=="+"){
-                            anschain.push("("+i+") "+base+" [+] "+num);
-                            base+=num;
-                        }
-                        else if(op=="-"){
-                            anschain.push("("+i+") "+" "+base+" [-] "+num);
-                            base-=num;
-                            
-                        }
-                        else if(op=="*"){
-                            anschain.push("("+i+") "+" "+base+" [*] "+num);
-                            base*=num;
-
-                        }
-                        else if(op=="/"){
-                            anschain.push("("+i+") "+" "+base+" [/] "+num);
-                            base/=num;
-
-                        }
-                        if(base>999 || base<0){
-                            preinvalid=true;
-                        }
-                        choices.push(base);
+                        output = modifier-input;  
                     }
-
-
+                    
                 }
-                chain = choices[0];
-                if(chain!=Math.round(chain) ||chain<100 ||preinvalid){
-                    loop+=1;
-                    if(loop>5000){
-                        alert("Could not find any integer solutions");
-                        return;
+                else if(operator=="*"){
+                    output = input*modifier;
+                }
+                else if(operator=="/"){
+                    if(input>=modifier){
+                        output = input/modifier;
                     }
-                    CreateAnswer();
+                    else{
+                        output = modifier/input;
+                    }
+                    
                 }
                 else{
-                    console.log("Solution for: "+numbers);
-                    for(let j=0; j< anschain.length;j++){
-                        console.log(anschain[j]);
+                    //alert("YOU STUPID");
+                }
+
+                if(difficulty<9&&output!=Math.round(output)){
+                    illegal=true;
+                }
+
+                return [[output],illegal];
+            }
+            function ShowAnswer(){
+                alert(storedAnswer);
+            }
+            function GenerateAnswer(){
+                var weight=0;
+                // FIRST STEP, GENERATE PATH
+                var computations = 6;
+                var operations = ["+","+","-","-","*","*","/","/","n","n","*","*","/"];
+                var numbers = shuffle([...numbersSelected]);
+                operations = shuffle(operations);
+                var solution = [];
+                var stack = [];
+                stack.push(numbers[0]);
+                for(let i=1; i<computations;i++){
+                    //console.log("Stack: "+stack);
+                    var shuffled = randomElement(stack);
+                    stack = shuffled[1];
+                    var input = shuffled[0];
+                    var result = ComputeOperator(input, numbers[i],operations[i]);
+                    //console.log("I: "+input+" - N: "+numbers[i]+" - R: "+result[0]);
+                    if(result[0]<0){
+                        weight-=100000;
                     }
-                    var docs = document.getElementsByClassName("target-number-box");
-                    chain = chain+= "----"
-                    docs[0].innerText = chain[0];
-                    docs[1].innerText = chain[1];
-                    docs[2].innerText = chain[2];
+                    if(operations[i]!="n"){
+                        if(operations=="-"||operations=="/"){
+                            if(input>numbers[i]){
+                                solution.push(input + " "+operations[i]+" "+numbers[i]+ " = "+(result[0])+"\n");
+                            }
+                            else{
+                                solution.push(numbers[i] + " "+operations[i]+" "+input+ " = "+(result[0])+"\n");
+                            }
+                        }
+                        solution.push(input + " "+operations[i]+" "+numbers[i]+ " = "+(result[0])+"\n");
+                        
+                        
+                    }
+
+                    for(let j=0;j<result[0].length;j++){
+                        var x = result[0][j];
+                        
+                        if(x != Math.round(x)){
+                            if(x%10<10){
+                                weight-=20000;
+                            }
+                            else{
+                                weight-=10000;
+                            }
+                        }
+                        else{
+                            
+                        }
+                        stack.push(x);
+                        //console.log("Stack Pushed: "+result[0][j]);
+                    }
+                }
+                while(stack.length>1){
+                    var s1 = randomElement(stack);
+                    stack = s1[1];
+                    var n1 = s1[0];
+
+                    var s2 = randomElement(stack);
+                    stack = s2[1];
+                    var n2 = s2[0];
+
+                    if(Math.random<0.5){
+                        solution.push(n1 +" + "+n2+ " = "+(n1+n2)+"\n");
+                        stack.push(n1+n2);
+                    }
+                    else{
+                        solution.push(n1 +" - "+n2+ " = "+(n1-n2)+"\n");
+                        stack.push(n1-n2);
+                    }
+
+                }
+                //2ND STEP, GENERATE WEIGHTS
+                
+                
+                for(let i=0; i< operations.length;i++){
+                    if(operations[i]=="+"){
+                        weight+=0.8;
+                    }
+                    if(operations[i]=="-"){
+                        weight+=1;
+                    }
+                    if(operations[i]=="*"){
+                        weight+=2;
+                    }
+                    if(operations[i]=="/"){
+                        weight+=2.3;
+                    }
+                    if(operations[1]=="n"){
+                        weight+=2.5;
+                    }
+
+                }
+                if(stack<300||stack>900){
+                    weight -=0.3;
+                }
+                if(stack%10 ==0){
+                    weight -=0.4;
+                }
+                if(stack*2%10 ==0){
+                    weight -= 0.5;
+                }
+                var st = (stack+"");
+                if(st[st.length-1]=="4"||st[st.length-1]=="2"){ // i hate 4 and 2, hello if you are reading this
+                    weight -= 0.3;
+                }
+                stack*=100;
+                stack = Math.round(stack);
+                stack/=100;
+
+                weight*=100;
+                weight=Math.round(stack);
+                weight/=100;
+                weight = clamp(weight,0,20);
+                return [stack,weight,solution];
+            }
+            function GenerateAnswers(){
+                var iterations = 50000;
+                var validSolutions = [];
+
+                for(let j=0;j<iterations;j++){
+                    var gen = GenerateAnswer();
+                    var x = gen[0];
+                    if(x==Math.round(x) && x>100&& x<1000){
+                        if(x<250&& Math.random <0.5){
+                            
+                        }
+                        else{
+                            if(gen[1]>7){
+                                validSolutions.push(gen);
+                            }
+                            
+                        }
+                        
+                    }
+
+                }
+                var frequency = {};
+                for (const num of validSolutions) {
+                    frequency[num] = frequency[num] ? frequency[num] + 1 : 1;
+                }
+                var savior = frequency;
+                //PICK HARDER ONES
+
+
+                // GET AVERAGE
+                const object = {'a': 1, 'b': 2, 'c' : 3};
+                var avg = 0;
+                var count = 0;
+                for (const [key, value] of Object.entries(frequency)) {
+                    //console.log(key, value);
+                    if(key+""!="0"||key+""!="undefined"){
+                        count +=1;
+                        avg+=value;
+                    }
+
+                }
+                avg/=count;
+                if(avg<2){
+                    avg=2;
+                }
+                //console.log("Stage 1 Average: "+avg);
+                //console.log("Stage 1: "+JSON.stringify(frequency));
+                // DECIMATE COMMON ONES
+                var decimated = {}
+                
+                
+                for (const [key, value] of Object.entries(frequency)) {
+                    //console.log(key, value);
+                    //if(value<avg && value > 1){ //really want to get this working
+                        decimated[key] = value;
+                    //}
+
+                }
+                //console.log("Stage 2: "+JSON.stringify(decimated));
+
+
+                selected = getWeightedRandom(decimated);
+                if(selected==undefined){
+                    console.log("Fallback as didn't find any hard problems");
+                    selected = getWeightedRandom(frequency);
                 }
                 
                 
+
+                var docs = document.getElementsByClassName("target-number-box");
+                var output = selected;
+                docs[0].innerText = output[0];
+                docs[1].innerText = output[1];
+                docs[2].innerText = output[2];
+
+                var dif = document.getElementById("difficulty-button");
+                dif.innerText="Difficulty: "+storedWeight;
+
+
+            }
+            function clamp(inp,mi,ma){
+                if(inp<mi){
+                    inp = mi;
+                }
+                if(inp>ma){
+                    inp=ma;
+                }
+                return inp;
+            }
+            function getWeightedRandom(data) {
+                var totalWeight=0;
+
+                for (const [key, weight] of Object.entries(data)) {
+                    var w = Math.pow(Number(key.split(",")[1]),1.5); 
+                    totalWeight+=w;
+                }
+
+                let random = Math.random() * totalWeight;
+
+                for (const [key, weight] of Object.entries(data)) {
+                    var w = Math.pow(Number(key.split(",")[1]),1.5);
+                    //console.log(w);
+                    random -= w
+                    if (random <= 0) {
+                        w*=100;
+                        w=Math.round(w);
+                        w/=100;
+                        var base = key.split(",");
+                        var num = base[0];
+                        var compositeAns = "";
+                        for(let j=2; j<base.length;j++){
+                            compositeAns = compositeAns+base[j];
+                        }
+                        storedAnswer=compositeAns;
+                        storedWeight=w;
+                        console.log("Selected: "+num+" with weight "+w+" with solution \n"+compositeAns);
+                        return key;
+                    }
+                }
+            }
+            function CreateAnswer(){
+                GenerateAnswers();
+                return;
             }
             function UpdateNumbersBox(){
                 var buttons = document.getElementsByClassName("number-box");
@@ -250,9 +499,7 @@
                 }
                 return array;
             }
-            function GenerateNext(){
-                
-            }
+
             function GenerateGrid(){
                 //Small Numbers
 

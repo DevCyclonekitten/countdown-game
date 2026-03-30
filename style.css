@@ -9,6 +9,16 @@
     background-color: rgb(177, 177, 177);
     font-size:20pt;
 }
+.node-selection-activated{
+    width:50px;
+    height:50px;
+    border:solid;
+    border-radius:1px;
+    border-style: double;
+    border-color: rgb(104, 104, 104);
+    background-color: rgb(241, 241, 241);
+    font-size:0pt;
+}
 #node-selection-box{
     height:300px;
     padding:25px;
@@ -55,14 +65,17 @@
 }
 #central-content{
     align-items: center;
+    justify-content: center;
     width:60%;
     height:80%;
     background-color: rgb(110, 110, 110);
     display:grid;
 }
 html, body {
-  height: 100%;
-  margin:0;
-  background-color: rgb(82, 82, 82);
-  color:white;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    margin:0;
+    background-color: rgb(82, 82, 82);
+    color:white;
 }

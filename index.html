@@ -15,8 +15,7 @@
                 <button class="target-number-box">-</button>
                 <button class="target-number-box">-</button>
                 <button class="target-number-box">-</button>
-                <button class="node-creation" onclick="GenerateGrid()">Generate</button>
-                <button class="node-creation" onclick="CreateAnswer()">Create</button>
+                <button class="node-creation" onclick="SelectAnswer()">Stop</button>
             </div>
             <div id="numbers-box">
                 <button class="number-box">-</button>
@@ -27,38 +26,38 @@
                 <button class="number-box">-</button>
             </div>
             <div id="node-selection-box">
-                <div class="horizontal-layout-group">
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
+                <div class="horizontal-layout-group row-1">
+                    <button class="node-selection row-1"></button>
+                    <button class="node-selection row-1"></button>
+                    <button class="node-selection row-1"></button>
+                    <button class="node-selection row-1"></button>
+                    <button class="node-selection row-1"></button>
                 </div>
                 <div class="horizontal-layout-group">
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
                 </div>
                 <div class="horizontal-layout-group">
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
+                    <button class="node-selection row-2"></button>
                 </div>
                 <div class="horizontal-layout-group">
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
-                    <button class="node-selection"></button>
+                    <button class="node-selection row-3"></button>
+                    <button class="node-selection row-3"></button>
+                    <button class="node-selection row-3"></button>
+                    <button class="node-selection row-3"></button>
+                    <button class="node-selection row-3"></button>
+                    <button class="node-selection row-3"></button>
                 </div>
                 
             </div>
@@ -68,67 +67,182 @@
         </div>
        
         <script>
+            //Difficulty Stuff
+            var largeNumbersPool = [];
+            var generalNumbersPool = [];
+            var higherNumbersPool = [];
+
+
             //global stuff
-            var useHarderLargeNumbers = false;
-            var useHarderSmallerNumbers = false;
-            var usePrimeSmallNumbers = false;
             var numbersSelected = [];
+            var runningAnimation=false;
+            var selectedNumber = false;
+            var loop=0;
+            GameMaster();
             GenerateGrid();
+            setInterval(UpdateDisplayAnimation,25);
+            function UpdateDisplayAnimation(){
+                if(numbersSelected.length==6){
+                    runningAnimation=true;
+                }
+                if(runningAnimation&&!selectedNumber){
+                    var docs = document.getElementsByClassName("target-number-box");
+                    var chain = Math.random()+"_";
+                    docs[0].innerText = chain[2];
+                    docs[1].innerText = chain[3];
+                    docs[2].innerText = chain[4];
+                }
+            }
             function GameMaster(){
-                
+                var largeNumbersOptions = [25,50,75,100];
+                var generalNumbersOptions = [1,2,3,4,5,6,7,8,9,10,1,2,3,4];
+                var higherNumbersOptions = [5,6,7,8,9,10];
+
+                var difficulty = 5;
+
+                if(difficulty>2){
+                    largeNumbersOptions.push(15,35);
+                    generalNumbersOptions.push(3,5,7,11);
+                }
+                if(difficulty>4){
+                    generalNumbersOptions.push(13,17,19,12,14,16);
+                    largeNumbersOptions.push(85,65,40,95);
+                }
+                if(difficulty>6){
+                    generalNumbersOptions.push(3,5,7,13,17,19,12,14,16,11,15);
+                    largeNumbersOptions.push(67,55,95,70);
+                }
+
+                largeNumbersPool = largeNumbersOptions;
+                generalNumbersPool = generalNumbersOptions;
+                higherNumbersPool = higherNumbersOptions;
+            }
+            function ClickNumber(i,object){
+                if(numbersSelected.length>=6) return;
+                if(object.innerText=="[-]"){
+                    if(object.classList.contains("row-1")){
+                        let r = randomElement(largeNumbersPool);
+                        largeNumbersPool=r[1];
+                        numbersSelected.push(r[0]);
+                    }
+                    if(object.classList.contains("row-2")){
+                        let r = randomElement(generalNumbersPool);
+                        generalNumbersPool=r[1];
+                        numbersSelected.push(r[0]);
+                    }
+                    if(object.classList.contains("row-3")){
+                        let r = randomElement(higherNumbersPool);
+                        higherNumbersPool=r[1];
+                        numbersSelected.push(r[0]);
+                    }
+                    object.innerText="[0]";
+                    object.classList.remove("node-selection");
+                    object.classList.add("node-selection-activated");
+                    UpdateNumbersBox();
+                }
+            }
+            function randomElement(array){
+                var i = Math.floor(Math.random() * array.length);
+                var res = array[i];
+                array.splice(i,1);
+                return [res,array];
+            }
+            function randomChoice(array){
+                var i = Math.floor(Math.random() * array.length);
+                var res = array[i];
+                return res; 
+            }
+            function SelectAnswer(){
+                if(numbersSelected.length<6) return;
+                selectedNumber=true;
+                CreateAnswer();
             }
             function CreateAnswer(){
-                var choices = ["+","+","-","-","*","*","/","/"]
-                var numbers = shuffle(numbersSelected);
-                choices = shuffle(choices);
+                
+                var operations = ["+","+","-","-","*","*","/","/"];
+                operations = shuffle(operations);
+
+                var numbers = shuffle([...numbersSelected]);
+                
+                var choices = [];
                 var chain = 0;
+                var anschain = [];
+                var preinvalid = false;
                 for(let i=0; i<5;i++){
-                    let op = choices[i];
+                    let op = operations[i];
                     let num = numbers[i];
-                    if(chain==0){
-                        chain = num;
+                    if(choices.length==0){
+                        choices.push(num);
+                        anschain.push("(0) "+num);
                     }
                     else{
+                        let ch = randomElement(choices);
+                        choices = ch[1];
+                        let base = ch[0];
+                        
                         if(op=="+"){
-                            chain+=num;
+                            anschain.push("("+i+") "+base+" [+] "+num);
+                            base+=num;
                         }
                         else if(op=="-"){
-                            chain-=num;
+                            anschain.push("("+i+") "+" "+base+" [-] "+num);
+                            base-=num;
+                            
                         }
                         else if(op=="*"){
-                            chain*=num;
+                            anschain.push("("+i+") "+" "+base+" [*] "+num);
+                            base*=num;
+
                         }
                         else if(op=="/"){
-                            chain/=num;
+                            anschain.push("("+i+") "+" "+base+" [/] "+num);
+                            base/=num;
+
                         }
+                        if(base>999 || base<0){
+                            preinvalid=true;
+                        }
+                        choices.push(base);
                     }
 
 
                 }
-                var docs = document.getElementsByClassName("target-number-box");
-                chain = chain+= "----"
-                docs[0].innerText = chain[0];
-                docs[1].innerText = chain[1];
-                docs[2].innerText = chain[2];
-                alert(chain);
+                chain = choices[0];
+                if(chain!=Math.round(chain) ||chain<100 ||preinvalid){
+                    loop+=1;
+                    if(loop>5000){
+                        alert("Could not find any integer solutions");
+                        return;
+                    }
+                    CreateAnswer();
+                }
+                else{
+                    console.log("Solution for: "+numbers);
+                    for(let j=0; j< anschain.length;j++){
+                        console.log(anschain[j]);
+                    }
+                    var docs = document.getElementsByClassName("target-number-box");
+                    chain = chain+= "----"
+                    docs[0].innerText = chain[0];
+                    docs[1].innerText = chain[1];
+                    docs[2].innerText = chain[2];
+                }
+                
+                
             }
             function UpdateNumbersBox(){
                 var buttons = document.getElementsByClassName("number-box");
+                if(numbersSelected.length>6){
+                    return;
+                }
+                if(numbersSelected.length==6){
+                    //CreateAnswer();
+                }
                 for(let i=0; i<numbersSelected.length;i++){
                     buttons[i].innerText=numbersSelected[i];
                 }
             }
-            function ClickNumber(i,object){
-                if(object.innerText!="Selected"){
-                    numbersSelected.push(i);
-                    UpdateNumbersBox();
-                    object.innerText="[0]";
-                    //alert("Selected number");
-                }
-                else{
-                    //alert("Invalid");
-                }
-            }
+            
             function shuffle(array){
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1))
@@ -142,12 +256,18 @@
             function GenerateGrid(){
                 //Small Numbers
 
-                var buttons = document.getElementsByClassName("node-selection");
+                var buttons = [...document.getElementsByClassName("node-selection")];
                 for(let i=0; i<buttons.length;i++){
                     buttons[i].onclick = function(){ClickNumber(i,buttons[i])};
                     buttons[i].innerText= "[-]";
                 }
             }
+
+
+
+
+
+            
 
             
         </script>
